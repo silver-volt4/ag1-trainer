@@ -1,6 +1,7 @@
 <script lang="ts">
   import { scale } from "svelte/transition";
   import type { Vertex, Edge } from "./graph";
+  import { cubicOut } from "svelte/easing";
 
   let {
     vertices,
@@ -9,6 +10,11 @@
     vertices: Vertex[];
     edges: Edge[];
   } = $props();
+
+  $effect(() => {
+    vertices.sort((a, b) => b.id - a.id);
+    console.log(vertices)
+  });
 
   let viewportWidth = $state(0);
   let viewportHeight = $state(0);
@@ -62,14 +68,24 @@
   </div>
   <svg {viewBox} class="h-full w-full">
     {#each edges as edge}
-      <path d="M{edge.a.x} {edge.a.y} L{edge.b.x} {edge.b.y}" class="dark:stroke-white stroke-black" />
+      <path
+        d="M{edge.a.x} {edge.a.y} L{edge.b.x} {edge.b.y}"
+        class="dark:stroke-white stroke-black"
+      />
     {/each}
     {#each vertices as vertex (vertex.id)}
-      <g style:transform="translate({vertex.x}px, {vertex.y}px)">
+      <g
+        data-vertex-id={vertex.id}
+        style="transform: translate({vertex.x}px, {vertex.y}px);"
+      >
         <g transition:scale>
-          <circle class="fill-blue-500" r={10} data-vertex-id={vertex.id} />
+          <circle class="fill-blue-500" r={10} />
           {#if vertex.data?.content}
-            <text font-size={10}  text-anchor="middle" dominant-baseline="central">
+            <text
+              font-size={10}
+              text-anchor="middle"
+              dominant-baseline="central"
+            >
               {vertex.data?.content}
             </text>
           {/if}
@@ -83,6 +99,6 @@
   g {
     transform-origin: center;
     transform-box: fill-box;
-    transition: transform 0.1s;
+    transition: transform 1s;
   }
 </style>

@@ -1,5 +1,5 @@
 export interface Vertex {
-    id?: number
+    id: number
     x: number;
     y: number;
     data?: VertexData 
