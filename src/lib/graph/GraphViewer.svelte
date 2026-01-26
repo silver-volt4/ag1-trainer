@@ -1,32 +1,24 @@
 <script lang="ts">
-  interface Node {
-    x: number;
-    y: number;
-  }
-
-  interface Edge {
-    a: Node;
-    b: Node;
-    oriented?: boolean;
-  }
+  import { scale } from "svelte/transition";
+  import type { Vertex, Edge } from "./graph";
 
   let {
-    nodes,
+    vertices,
     edges,
   }: {
-    nodes: Node[];
+    vertices: Vertex[];
     edges: Edge[];
   } = $props();
 
-  let width = $state(0);
-  let height = $state(0);
+  let viewportWidth = $state(0);
+  let viewportHeight = $state(0);
+
   let centerX = $state(0);
   let centerY = $state(0);
-
   let zoom = $state(1.0);
 
   let viewBox = $derived(
-    `${centerX - width / (2 * zoom)} ${centerY - height / (2 * zoom)} ${width / zoom} ${height / zoom}`,
+    `${centerX - viewportWidth / (2 * zoom)} ${centerY - viewportHeight / (2 * zoom)} ${viewportWidth / zoom} ${viewportHeight / zoom}`,
   );
 
   function onwheel(event: WheelEvent) {
@@ -57,8 +49,8 @@
 
 <div
   class="root"
-  bind:clientWidth={width}
-  bind:clientHeight={height}
+  bind:clientWidth={viewportWidth}
+  bind:clientHeight={viewportHeight}
   {onwheel}
   {onmousedown}
   role="presentation"
@@ -70,10 +62,10 @@
   </div>
   <svg {viewBox}>
     {#each edges as edge}
-      <path d="M{edge.a.x} {edge.a.y} L{edge.b.x} {edge.b.y}" stroke="black"/>
+      <path d="M{edge.a.x} {edge.a.y} L{edge.b.x} {edge.b.y}" stroke="black" />
     {/each}
-    {#each nodes as node}
-      <circle cx={node.x} cy={node.y} r={10} fill="red" />
+    {#each vertices as node (node.id)}
+      <circle transition:scale cx={node.x} cy={node.y} r={10} fill="red" data-vertex-id="{node.id}" />
     {/each}
   </svg>
 </div>
@@ -95,5 +87,13 @@
   svg {
     height: 100%;
     width: 100%;
+  }
+
+  circle {
+    transform-origin: center;
+    transform-box: fill-box;
+    transition:
+      cx 0.1s,
+      cy 0.1s;
   }
 </style>

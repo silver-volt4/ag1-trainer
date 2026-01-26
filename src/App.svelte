@@ -1,19 +1,19 @@
 <script lang="ts">
-    import NodeViewer from "./lib/NodeViewer.svelte";
+    import BinaryHeapViewer from "./lib/binary_heap/BinaryHeapViewer.svelte";
+    import BinaryTreeViewer from "./lib/binary_tree/BinaryTreeViewer.svelte";
+    import NodeViewer from "./lib/graph/GraphViewer.svelte";
 
-    let nodes = $state([
+    let vertices = $state([
         { x: 10, y: 10 },
         { x: 34, y: 43 },
     ]);
 
-    let edges = $state([
-        {a: nodes[0], b: nodes[1]}
-    ])
+    let edges = $state([{ a: vertices[0], b: vertices[1] }]);
 </script>
 
 <div>
     Testing UI above NV
-    <NodeViewer {nodes} {edges}></NodeViewer>
+    <BinaryHeapViewer />
     Testing UI below NV
 </div>
 
