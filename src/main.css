@@ -1,12 +1,22 @@
-body {
-    margin: 0;
+@import "tailwindcss";
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@font-face {
+    font-display: swap;
+    font-family: 'Roboto Slab';
+    font-style: normal;
+    font-weight: 400;
+    src: url('font/roboto-slab-v36-latin_latin-ext-regular.woff2') format('woff2');
 }
 
-#app {
-    height: 100dvh;
-    width: 100dvw;
-    height: 100vh;
-    width: 100vw;
-    background-color: silver;
-    overflow: hidden;
+@font-face {
+    font-display: swap;
+    font-family: 'Roboto Slab';
+    font-style: normal;
+    font-weight: 700;
+    src: url('font/roboto-slab-v36-latin_latin-ext-700.woff2') format('woff2');
+}
+
+* {
+    font-family: Roboto Slab, Roboto, sans-serif;
 }

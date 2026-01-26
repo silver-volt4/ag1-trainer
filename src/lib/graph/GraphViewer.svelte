@@ -15,7 +15,7 @@
 
   let centerX = $state(0);
   let centerY = $state(0);
-  let zoom = $state(1.0);
+  let zoom = $state(5.0);
 
   let viewBox = $derived(
     `${centerX - viewportWidth / (2 * zoom)} ${centerY - viewportHeight / (2 * zoom)} ${viewportWidth / zoom} ${viewportHeight / zoom}`,
@@ -48,29 +48,29 @@
 </script>
 
 <div
-  class="root"
+  class="h-full w-full overflow-hidden relative"
   bind:clientWidth={viewportWidth}
   bind:clientHeight={viewportHeight}
   {onwheel}
   {onmousedown}
   role="presentation"
-  aria-roledescription="Node visualizer"
+  aria-roledescription="Graph visualizer"
 >
-  <div class="nerd">
+  <div class="absolute top-0 left-0">
     {centerX}
     {centerY}
   </div>
-  <svg {viewBox}>
+  <svg {viewBox} class="h-full w-full">
     {#each edges as edge}
-      <path d="M{edge.a.x} {edge.a.y} L{edge.b.x} {edge.b.y}" stroke="black" />
+      <path d="M{edge.a.x} {edge.a.y} L{edge.b.x} {edge.b.y}" class="dark:stroke-white stroke-black" />
     {/each}
-    {#each vertices as node (node.id)}
-      <g style:transform="translate({node.x}px, {node.y}px)">
+    {#each vertices as vertex (vertex.id)}
+      <g style:transform="translate({vertex.x}px, {vertex.y}px)">
         <g transition:scale>
-          <circle r={10} fill="red" data-vertex-id={node.id} />
-          {#if node.data?.content}
-            <text font-size={10} text-anchor="middle" dominant-baseline="central">
-              {node.data?.content}
+          <circle class="fill-blue-500" r={10} data-vertex-id={vertex.id} />
+          {#if vertex.data?.content}
+            <text font-size={10}  text-anchor="middle" dominant-baseline="central">
+              {vertex.data?.content}
             </text>
           {/if}
         </g>
@@ -80,31 +80,9 @@
 </div>
 
 <style>
-  div.root {
-    height: 100%;
-    width: 100%;
-    position: relative;
-    overflow: hidden;
-  }
-
-  div.nerd {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-  svg {
-    height: 100%;
-    width: 100%;
-  }
-
   g {
     transform-origin: center;
     transform-box: fill-box;
     transition: transform 0.1s;
-  }
-
-  text {
-    font-family: sans-serif;
   }
 </style>

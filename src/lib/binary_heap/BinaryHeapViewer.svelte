@@ -45,6 +45,10 @@
     });
 </script>
 
-<button onclick={() => heapData.push(1)}>add something</button> 
+<div class="dark:bg-slate-950 bg-slate-200 rounded-lg overflow-hidden">
+    <button onclick={() => heapData.push(1)}>add something</button>
+</div>
 
-<BinaryTreeViewer tree={heapAsBinaryTree} />
+<div class="dark:bg-slate-950 bg-slate-200 rounded-lg h-full overflow-hidden">
+    <BinaryTreeViewer tree={heapAsBinaryTree} />
+</div>
