@@ -1,6 +1,11 @@
-import type { Edge, Vertex } from "../graph/graph";
+import type { Edge, Vertex, VertexData } from "../graph/graph";
 
 export class BinaryTreeVertex {
+    private static idCount = 0;
+    id: number;
+
+    data: VertexData
+
     left: BinaryTreeVertex | null = $state(null);
     right: BinaryTreeVertex | null = $state(null);
 
@@ -17,11 +22,8 @@ export class BinaryTreeVertex {
         let queue: Array<BinaryTreeVertex | null> = [];
         let queueRealVerticesCount = 1;
 
-        let id = 0;
-
         const addVertex = (vertex: BinaryTreeVertex) => {
-            let vertexData: Vertex = { x: 0, y: 0, id: id };
-            id++;
+            let vertexData: Vertex = { x: 0, y: 0, id: vertex.id, data: vertex.data };
             vertices.push(vertexData);
             let vertexBfsData = {
                 vertex: vertexData,
@@ -80,7 +82,7 @@ export class BinaryTreeVertex {
         }
 
         let lastRow = 2 ** depth;
-        let WIDTH = 20 * lastRow + 5 * (lastRow-1);
+        let WIDTH = 20 * lastRow + 5 * (lastRow - 1);
 
         bfsData.forEach((data) => {
             let piece = WIDTH / 2 ** data.depth;
@@ -92,6 +94,8 @@ export class BinaryTreeVertex {
     })
 
     constructor(left: BinaryTreeVertex | null, right: BinaryTreeVertex | null) {
+        this.id = BinaryTreeVertex.idCount++;
+        this.data = {};
         this.left = left;
         this.right = right;
     }

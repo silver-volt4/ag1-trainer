@@ -5,15 +5,14 @@
     let heapData: any[] = $state([]);
 
     class BinaryHeapTreeVertex extends BinaryTreeVertex {
-        index: number;
-
         constructor(
             index: number,
             left: BinaryTreeVertex | null,
             right: BinaryTreeVertex | null,
         ) {
             super(left, right);
-            this.index = index;
+            this.id = index;
+            this.data.content = index.toString();
         }
     }
 
@@ -27,8 +26,8 @@
         while (q.length > 0) {
             let current = q.shift()!;
 
-            let leftIndex = 2 * current.index;
-            let rightIndex = 2 * current.index + 1;
+            let leftIndex = 2 * current.id;
+            let rightIndex = 2 * current.id + 1;
 
             if (leftIndex <= heapData.length) {
                 let v = new BinaryHeapTreeVertex(leftIndex, null, null);

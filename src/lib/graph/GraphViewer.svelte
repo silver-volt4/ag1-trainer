@@ -65,7 +65,16 @@
       <path d="M{edge.a.x} {edge.a.y} L{edge.b.x} {edge.b.y}" stroke="black" />
     {/each}
     {#each vertices as node (node.id)}
-      <circle transition:scale cx={node.x} cy={node.y} r={10} fill="red" data-vertex-id="{node.id}" />
+      <g style:transform="translate({node.x}px, {node.y}px)">
+        <g transition:scale>
+          <circle r={10} fill="red" data-vertex-id={node.id} />
+          {#if node.data?.content}
+            <text font-size={10} text-anchor="middle" dominant-baseline="central">
+              {node.data?.content}
+            </text>
+          {/if}
+        </g>
+      </g>
     {/each}
   </svg>
 </div>
@@ -89,11 +98,13 @@
     width: 100%;
   }
 
-  circle {
+  g {
     transform-origin: center;
     transform-box: fill-box;
-    transition:
-      cx 0.1s,
-      cy 0.1s;
+    transition: transform 0.1s;
+  }
+
+  text {
+    font-family: sans-serif;
   }
 </style>
