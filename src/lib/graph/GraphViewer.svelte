@@ -1,27 +1,19 @@
 <script lang="ts">
   import { scale } from "svelte/transition";
-  import type { Vertex, Edge } from "./graph";
-  import { cubicOut } from "svelte/easing";
+  import { Graph } from "./graph.svelte";
 
   let {
-    vertices,
-    edges,
+    graph,
   }: {
-    vertices: Vertex[];
-    edges: Edge[];
+    graph: Graph;
   } = $props();
-
-  $effect(() => {
-    vertices.sort((a, b) => b.id - a.id);
-    console.log(vertices)
-  });
 
   let viewportWidth = $state(0);
   let viewportHeight = $state(0);
 
   let centerX = $state(0);
   let centerY = $state(0);
-  let zoom = $state(5.0);
+  let zoom = $state(3.0);
 
   let viewBox = $derived(
     `${centerX - viewportWidth / (2 * zoom)} ${centerY - viewportHeight / (2 * zoom)} ${viewportWidth / zoom} ${viewportHeight / zoom}`,
@@ -67,17 +59,14 @@
     {centerY}
   </div>
   <svg {viewBox} class="h-full w-full">
-    {#each edges as edge}
+    {#each graph.edges as edge (edge)}
       <path
         d="M{edge.a.x} {edge.a.y} L{edge.b.x} {edge.b.y}"
         class="dark:stroke-white stroke-black"
       />
     {/each}
-    {#each vertices as vertex (vertex.id)}
-      <g
-        data-vertex-id={vertex.id}
-        style="transform: translate({vertex.x}px, {vertex.y}px);"
-      >
+    {#each graph.vertices as vertex (vertex)}
+      <g style="transform: translate({vertex.x}px, {vertex.y}px);">
         <g transition:scale>
           <circle class="fill-blue-500" r={10} />
           {#if vertex.data?.content}

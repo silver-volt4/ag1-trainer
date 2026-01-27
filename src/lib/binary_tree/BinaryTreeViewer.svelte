@@ -1,11 +1,16 @@
 <script lang="ts">
   import GraphViewer from "../graph/GraphViewer.svelte";
-  import { BinaryTreeVertex } from "./binary_tree.svelte";
+  import { BinaryTree } from "./binary_tree.svelte";
 
-  let { tree }: { tree: BinaryTreeVertex | null } = $props();
+  let {
+    binaryTree,
+  }: {
+    binaryTree: BinaryTree;
+  } = $props();
+
+  $effect(() => {
+    binaryTree.arrange();
+  });
 </script>
 
-<GraphViewer
-  vertices={tree?.plain.vertices ?? []}
-  edges={tree?.plain.edges ?? []}
-/>
+<GraphViewer graph={binaryTree.graph} />

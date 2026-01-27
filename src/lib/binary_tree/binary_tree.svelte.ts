@@ -1,32 +1,56 @@
-import type { Edge, Vertex, VertexData } from "../graph/graph";
+import { Graph, Vertex, type Edge, type VertexData } from "../graph/graph.svelte";
+
+export class BinaryTree {
+    public readonly graph: Graph;
+    public root: BinaryTreeVertex | null = $state(null);
+
+    constructor() {
+        this.graph = new Graph();
+    }
+
+    public createVertex(data: VertexData = {}): BinaryTreeVertex {
+        return new BinaryTreeVertex(this, this.graph.createVertex(data));
+    }
+
+    public arrange() {
+        this.root?.arrange();
+    }
+}
 
 export class BinaryTreeVertex {
-    private static idCount = 0;
-    id: number;
-
-    data: VertexData
-
+    private binaryTree: BinaryTree;
+    vertex: Vertex;
     left: BinaryTreeVertex | null = $state(null);
     right: BinaryTreeVertex | null = $state(null);
 
-    plain: { vertices: Vertex[], edges: Edge[] } = $derived.by(() => {
-        console.info("Rebuilding BinaryTreeVertex.plain");
+    constructor(binaryTree: BinaryTree, vertex: Vertex) {
+        this.binaryTree = binaryTree;
+        this.vertex = vertex;
+    }
 
-        let vertices: Vertex[] = [];
-        let edges: Edge[] = [];
+    public createVertexLeft(data: VertexData = {}): BinaryTreeVertex {
+        let newVertex = this.binaryTree.createVertex(data);
+        newVertex.vertex.link(this.vertex);
+        return this.left = newVertex;
+    }
+
+    public createVertexRight(data: VertexData = {}): BinaryTreeVertex {
+        let newVertex = this.binaryTree.createVertex(data);
+        newVertex.vertex.link(this.vertex);
+        return this.right = newVertex;
+    }
+
+    public arrange() {
         let bfsData = new Map<
             BinaryTreeVertex,
-            { vertex: Vertex; depth: number; fromLeft: number }
+            { depth: number; fromLeft: number }
         >();
 
         let queue: Array<BinaryTreeVertex | null> = [];
         let queueRealVerticesCount = 1;
 
         const addVertex = (vertex: BinaryTreeVertex) => {
-            let vertexData: Vertex = { x: 0, y: 0, id: vertex.id, data: vertex.data };
-            vertices.push(vertexData);
             let vertexBfsData = {
-                vertex: vertexData,
                 depth: 0,
                 fromLeft: 0,
             };
@@ -56,16 +80,12 @@ export class BinaryTreeVertex {
             queue.push(left);
             if (left) {
                 queueRealVerticesCount += 1;
-                let a = bfsData.get(current)!.vertex;
-                let b = addVertex(left).vertex;
-                edges.push({ a, b });
+                addVertex(left);
             }
             queue.push(right);
             if (right) {
                 queueRealVerticesCount += 1;
-                let a = bfsData.get(current)!.vertex;
-                let b = addVertex(right).vertex;
-                edges.push({ a, b });
+                addVertex(right);
             }
 
             seenVertices += 1;
@@ -84,19 +104,10 @@ export class BinaryTreeVertex {
         let lastRow = 2 ** depth;
         let WIDTH = 20 * lastRow + 5 * (lastRow - 1);
 
-        bfsData.forEach((data) => {
+        bfsData.forEach((data, binaryTreeVertex) => {
             let piece = WIDTH / 2 ** data.depth;
-            data.vertex.x = WIDTH / -2 + piece / 2 + piece * data.fromLeft;
-            data.vertex.y = data.depth * 30;
+            binaryTreeVertex.vertex.x = WIDTH / -2 + piece / 2 + piece * data.fromLeft;
+            binaryTreeVertex.vertex.y = data.depth * 30;
         });
-
-        return { vertices, edges };
-    })
-
-    constructor(left: BinaryTreeVertex | null, right: BinaryTreeVertex | null) {
-        this.id = BinaryTreeVertex.idCount++;
-        this.data = {};
-        this.left = left;
-        this.right = right;
     }
 }

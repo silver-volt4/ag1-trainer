@@ -1,79 +1,45 @@
 <script lang="ts">
-    import { BinaryTreeVertex } from "../binary_tree/binary_tree.svelte";
+    import {
+        BinaryTree,
+        BinaryTreeVertex,
+    } from "../binary_tree/binary_tree.svelte";
     import BinaryTreeViewer from "../binary_tree/BinaryTreeViewer.svelte";
 
     class HeapCell {
-        private static idCount = 0;
-
-        id: number;
         value: number;
+        vertex: BinaryTreeVertex;
 
-        constructor(value: number) {
-            this.id = HeapCell.idCount++;
+        constructor(value: number, vertex: BinaryTreeVertex) {
             this.value = value;
+            this.vertex = vertex;
         }
     }
 
+    let tree = new BinaryTree();
     let heapData: HeapCell[] = $state([]);
-
-    class BinaryHeapTreeVertex extends BinaryTreeVertex {
-        index: number;
-
-        constructor(
-            index: number,
-            cell: HeapCell,
-            left: BinaryTreeVertex | null,
-            right: BinaryTreeVertex | null,
-        ) {
-            super(left, right);
-            this.index = index;
-            this.id = cell.id;
-            this.data.content = cell.value.toString();
-        }
-    }
-
-    let heapAsBinaryTree = $derived.by(() => {
-        if (heapData.length === 0) {
-            return null;
-        }
-
-        let root = new BinaryHeapTreeVertex(1, heapData[0], null, null);
-        let q = [root];
-        while (q.length > 0) {
-            let current = q.shift()!;
-
-            let leftIndex = 2 * current.index;
-            let rightIndex = 2 * current.index + 1;
-
-            if (leftIndex <= heapData.length) {
-                let v = new BinaryHeapTreeVertex(
-                    leftIndex,
-                    heapData[leftIndex - 1],
-                    null,
-                    null,
-                );
-                current.left = v;
-                q.push(v);
-            }
-            if (rightIndex <= heapData.length) {
-                let v = new BinaryHeapTreeVertex(
-                    rightIndex,
-                    heapData[rightIndex - 1],
-                    null,
-                    null,
-                );
-                current.right = v;
-                q.push(v);
-            }
-        }
-
-        return root;
-    });
 
     let addValueInput = $state(0);
 
     function addValue() {
-        BHInsert(new HeapCell(addValueInput));
+        let value = addValueInput;
+        addValueInput = 0;
+
+        let vertex: BinaryTreeVertex;
+        let data = { content: value.toString() };
+        if (heapData.length === 0) {
+            vertex = tree.createVertex(data);
+            tree.root = vertex;
+        } else {
+            let parentIndex = Math.floor((heapData.length + 1) / 2) - 1;
+            let parent = heapData[parentIndex];
+            if (heapData.length % 2 == 0) {
+                vertex = parent.vertex.createVertexRight(data);
+            } else {
+                vertex = parent.vertex.createVertexLeft(data);
+            }
+        }
+
+        BHInsert(new HeapCell(value, vertex));
         addValueInput = 0;
     }
 
@@ -81,9 +47,15 @@
         let index = heapData.push(cell);
         while (index > 1) {
             let newIndex = Math.floor(index / 2);
-            if (heapData[newIndex - 1].value > cell.value) {
-                heapData[index - 1] = heapData[newIndex - 1];
-                heapData[newIndex - 1] = cell;
+            if (heapData[newIndex - 1].value > heapData[index - 1].value) {
+                let carryValue = heapData[newIndex - 1].value;
+                let carryVertex = heapData[newIndex - 1].vertex.vertex;
+
+                heapData[newIndex - 1].value = heapData[index - 1].value;
+                heapData[newIndex - 1].vertex.vertex =
+                    heapData[index - 1].vertex.vertex;
+                heapData[index - 1].value = carryValue;
+                heapData[index - 1].vertex.vertex = carryVertex;
                 index = newIndex;
             } else {
                 break;
@@ -101,5 +73,5 @@
 </div>
 
 <div class="dark:bg-slate-950 bg-slate-200 rounded-lg h-full overflow-hidden">
-    <BinaryTreeViewer tree={heapAsBinaryTree} />
+    <BinaryTreeViewer binaryTree={tree} />
 </div>
