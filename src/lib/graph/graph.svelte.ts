@@ -1,26 +1,51 @@
-export class Graph {
-  public vertices: Vertex[] = $state([]);
-  public edges: Edge[] = $state([]);
-  public readonly undirected: boolean;
+export interface IVertex {
+  x: number;
+  y: number;
+  data?: VertexData
+}
 
-  constructor(undirected: boolean = true) {
-    this.undirected = undirected;
-  }
+export interface IEdge {
+  from: IVertex;
+  to: IVertex;
+}
+
+export abstract class BaseGraph<VertexType extends IVertex, EdgeType extends IEdge> {
+  public abstract getVertices(): Iterable<VertexType>;
+  public abstract getEdges(): Iterable<EdgeType>;
+}
+
+export class Graph extends BaseGraph<Vertex, IEdge> {
+  public vertices: Vertex[] = $state([]);
 
   public createVertex(data: VertexData = {}) {
-    let v = new Vertex(this);
-    Object.assign(v.data, data); 
-    this.vertices.push(v);
-    return v;
+    let vertex = new Vertex(this);
+    Object.assign(vertex.data, data);
+    this.vertices.push(vertex);
+    return vertex;
   }
 
-  public createEdge(first: Vertex, second: Vertex) {
-    this.edges.push(new Edge(this, first, second));
+  public getVertices(): Iterable<Vertex> {
+    return this.vertices;
+  }
+
+  public getEdges(): Iterable<IEdge> {
+    let vertices = this.vertices;
+    return (function* () {
+      for (let vertex of vertices) {
+        for (let successor of vertex.successors) {
+          yield {
+            from: vertex,
+            to: successor
+          } as IEdge
+        }
+      }
+    })()
   }
 }
 
-export class Vertex {
+export class Vertex implements IVertex {
   protected graph: Graph;
+  public successors: Set<Vertex>;
   public x: number = $state(0);
   public y: number = $state(0);
 
@@ -28,26 +53,19 @@ export class Vertex {
 
   constructor(graph: Graph) {
     this.graph = graph;
+    this.successors = new Set();
   }
 
   public link(other: Vertex) {
-    this.graph.createEdge(this, other);
+    this.successors.add(other);
+  }
+
+  public unlink(other: Vertex) {
+    this.successors.delete(other);
   }
 }
 
 export interface VertexData {
   class?: string;
   content?: string;
-}
-
-export class Edge {
-  protected graph: Graph;
-  public a: Vertex;
-  public b: Vertex;
-
-  constructor(graph: Graph, a: Vertex, b: Vertex) {
-    this.graph = graph;
-    this.a = a;
-    this.b = b;
-  }
 }

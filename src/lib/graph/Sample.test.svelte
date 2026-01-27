@@ -20,7 +20,11 @@
     e.link(c);
     g.link(c);
 
-    arrangeCircle(graph, 50);
+    $effect(() => {
+        arrangeCircle(graph, 50);
+    });
 </script>
 
 <GraphViewer {graph} />
+
+<button onclick={() => graph.createVertex()}>add a vertex</button>

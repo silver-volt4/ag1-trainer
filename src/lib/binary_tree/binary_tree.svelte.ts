@@ -1,46 +1,61 @@
-import { Graph, Vertex, type Edge, type VertexData } from "../graph/graph.svelte";
+import { untrack } from "svelte";
+import { BaseGraph, Graph, Vertex, type IEdge, type IVertex, type VertexData } from "../graph/graph.svelte";
 
-export class BinaryTree {
-    public readonly graph: Graph;
+export class BinaryTree extends BaseGraph<BTWrappedVertex, IEdge> {
     public root: BinaryTreeVertex | null = $state(null);
 
-    constructor() {
-        this.graph = new Graph();
+    public getVertices(): Iterable<BTWrappedVertex> {
+        let queue: BinaryTreeVertex[] = [];
+        let result: BTWrappedVertex[] = [];
+
+        this.root && queue.push(this.root);
+
+        while (queue.length > 0) {
+            let current = queue.shift()!;
+            result.push(current.vertex);
+            let left = current?.left ?? null;
+            let right = current?.right ?? null;
+
+            if (left) {
+                queue.push(left);
+            }
+            if (right) {
+                queue.push(right);
+            }
+        }
+
+        return result;
     }
 
-    public createVertex(data: VertexData = {}): BinaryTreeVertex {
-        return new BinaryTreeVertex(this, this.graph.createVertex(data));
+    public getEdges(): Iterable<IEdge> {
+        let queue: BinaryTreeVertex[] = [];
+        let result: IEdge[] = [];
+
+        this.root && queue.push(this.root);
+
+        while (queue.length > 0) {
+            let current = queue.shift()!;
+            let left = current?.left ?? null;
+            let right = current?.right ?? null;
+
+            if (left) {
+                queue.push(left);
+                result.push({ from: current.vertex, to: left.vertex })
+            }
+            if (right) {
+                queue.push(right);
+                result.push({ from: current.vertex, to: right.vertex })
+            }
+        }
+
+        return result;
     }
 
     public arrange() {
-        this.root?.arrange();
-    }
-}
+        if (!this.root) {
+            return;
+        }
 
-export class BinaryTreeVertex {
-    private binaryTree: BinaryTree;
-    vertex: Vertex;
-    left: BinaryTreeVertex | null = $state(null);
-    right: BinaryTreeVertex | null = $state(null);
-
-    constructor(binaryTree: BinaryTree, vertex: Vertex) {
-        this.binaryTree = binaryTree;
-        this.vertex = vertex;
-    }
-
-    public createVertexLeft(data: VertexData = {}): BinaryTreeVertex {
-        let newVertex = this.binaryTree.createVertex(data);
-        newVertex.vertex.link(this.vertex);
-        return this.left = newVertex;
-    }
-
-    public createVertexRight(data: VertexData = {}): BinaryTreeVertex {
-        let newVertex = this.binaryTree.createVertex(data);
-        newVertex.vertex.link(this.vertex);
-        return this.right = newVertex;
-    }
-
-    public arrange() {
         let bfsData = new Map<
             BinaryTreeVertex,
             { depth: number; fromLeft: number }
@@ -58,8 +73,8 @@ export class BinaryTreeVertex {
             return vertexBfsData;
         };
 
-        addVertex(this);
-        queue.push(this);
+        addVertex(this.root);
+        queue.push(this.root);
 
         let depth = 0;
         let requiredVertices = 1;
@@ -109,5 +124,50 @@ export class BinaryTreeVertex {
             binaryTreeVertex.vertex.x = WIDTH / -2 + piece / 2 + piece * data.fromLeft;
             binaryTreeVertex.vertex.y = data.depth * 30;
         });
+    }
+
+    public createVertex(data: VertexData = {}): BinaryTreeVertex {
+        let vertex = new BinaryTreeVertex(this);
+        Object.assign(vertex.vertex.data!, data);
+        return vertex;
+    }
+}
+
+export class BTWrappedVertex implements IVertex {
+    x: number = $state(0);
+    y: number = $state(0);
+    data: VertexData = $state({});
+}
+
+export class BinaryTreeVertex {
+    vertex: BTWrappedVertex = $state(new BTWrappedVertex());
+
+    protected tree: BinaryTree;
+    parent: BinaryTreeVertex | null = $state(null);
+    left: BinaryTreeVertex | null = $state(null);
+    right: BinaryTreeVertex | null = $state(null);
+
+    constructor(binaryTree: BinaryTree) {
+        this.tree = binaryTree;
+    }
+
+    public createLeft(data: VertexData = {}) {
+        let vertex = this.tree.createVertex(data)
+        vertex.parent = this;
+        if (this.left) {
+            this.left.parent = null;
+        }
+        this.left = vertex;
+        return vertex;
+    }
+
+    public createRight(data: VertexData = {}) {
+        let vertex = this.tree.createVertex(data)
+        vertex.parent = this;
+        if (this.right) {
+            this.right.parent = null;
+        }
+        this.right = vertex;
+        return vertex;
     }
 }

@@ -10,7 +10,7 @@
 
   $effect(() => {
     binaryTree.arrange();
-  });
+  })
 </script>
 
-<GraphViewer graph={binaryTree.graph} />
+<GraphViewer graph={binaryTree} />

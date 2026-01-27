@@ -1,11 +1,12 @@
 <script lang="ts">
   import { scale } from "svelte/transition";
-  import { Graph } from "./graph.svelte";
+  import { BaseGraph, type IEdge, type IVertex } from "./graph.svelte";
+    import Vertex from "./Vertex.svelte";
 
   let {
     graph,
   }: {
-    graph: Graph;
+    graph: BaseGraph<IVertex, IEdge>;
   } = $props();
 
   let viewportWidth = $state(0);
@@ -59,27 +60,14 @@
     {centerY}
   </div>
   <svg {viewBox} class="h-full w-full">
-    {#each graph.edges as edge (edge)}
+    {#each graph.getEdges() as edge (edge)}
       <path
-        d="M{edge.a.x} {edge.a.y} L{edge.b.x} {edge.b.y}"
+        d="M{edge.from.x} {edge.from.y} L{edge.to.x} {edge.to.y}"
         class="dark:stroke-white stroke-black"
       />
     {/each}
-    {#each graph.vertices as vertex (vertex)}
-      <g style="transform: translate({vertex.x}px, {vertex.y}px);">
-        <g transition:scale>
-          <circle class="fill-blue-500" r={10} />
-          {#if vertex.data?.content}
-            <text
-              font-size={10}
-              text-anchor="middle"
-              dominant-baseline="central"
-            >
-              {vertex.data?.content}
-            </text>
-          {/if}
-        </g>
-      </g>
+    {#each graph.getVertices() as vertex (vertex)}
+      <Vertex {vertex}/>
     {/each}
   </svg>
 </div>

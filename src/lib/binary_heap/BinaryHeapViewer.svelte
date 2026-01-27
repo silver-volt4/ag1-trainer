@@ -4,6 +4,8 @@
         BinaryTreeVertex,
     } from "../binary_tree/binary_tree.svelte";
     import BinaryTreeViewer from "../binary_tree/BinaryTreeViewer.svelte";
+    import { arrangeCircle } from "../graph/arrange";
+    import GraphViewer from "../graph/GraphViewer.svelte";
 
     class HeapCell {
         value: number;
@@ -33,9 +35,9 @@
             let parentIndex = Math.floor((heapData.length + 1) / 2) - 1;
             let parent = heapData[parentIndex];
             if (heapData.length % 2 == 0) {
-                vertex = parent.vertex.createVertexRight(data);
+                vertex = parent.vertex.createRight(data);
             } else {
-                vertex = parent.vertex.createVertexLeft(data);
+                vertex = parent.vertex.createLeft(data);
             }
         }
 
@@ -44,23 +46,32 @@
     }
 
     function BHInsert(cell: HeapCell) {
-        let index = heapData.push(cell);
-        while (index > 1) {
-            let newIndex = Math.floor(index / 2);
-            if (heapData[newIndex - 1].value > heapData[index - 1].value) {
-                let carryValue = heapData[newIndex - 1].value;
-                let carryVertex = heapData[newIndex - 1].vertex.vertex;
+        let currentIndex = heapData.push(cell);
+        while (currentIndex > 1) {
+            let parentIndex = Math.floor(currentIndex / 2);
 
-                heapData[newIndex - 1].value = heapData[index - 1].value;
-                heapData[newIndex - 1].vertex.vertex =
-                    heapData[index - 1].vertex.vertex;
-                heapData[index - 1].value = carryValue;
-                heapData[index - 1].vertex.vertex = carryVertex;
-                index = newIndex;
+            let current = heapData[currentIndex - 1];
+            let parent = heapData[parentIndex - 1];
+
+            if (current.value < parent.value) {
+                console.log("Will flip ", current, " and ", parent);
+
+                let carry = heapData[currentIndex - 1].value;
+                heapData[currentIndex - 1].value = heapData[parentIndex - 1].value;
+                heapData[parentIndex - 1].value = carry;
+
+                let vCarry = current.vertex.vertex;
+                current.vertex.vertex = parent.vertex.vertex;
+                parent.vertex.vertex = vCarry;
+
+                currentIndex = parentIndex;
             } else {
                 break;
             }
         }
+
+        console.log(tree.root);
+        console.log(heapData);
     }
 </script>
 
@@ -70,6 +81,14 @@
         bind:value={addValueInput}
         onkeyup={(e) => e.key === "Enter" && addValue()}
     />
+    <div class="flex gap-2">
+        {#each heapData as cell (cell.vertex)}
+            {@const _ = console.log("rendering ", cell)}
+            <div class="bg-slate-300">
+                {cell.value}
+            </div>
+        {/each}
+    </div>
 </div>
 
 <div class="dark:bg-slate-950 bg-slate-200 rounded-lg h-full overflow-hidden">
