@@ -40,6 +40,24 @@
     }
   }
 
+  let touchDelta = {x: 0, y: 0}
+
+  function ontouchstart(event: TouchEvent) {
+    if (event.touches.length === 1) {
+      touchDelta.x = event.touches[0].clientX;
+      touchDelta.y = event.touches[0].clientY;
+    }
+  }
+
+  function ontouchmove(event: TouchEvent) {
+    if (event.touches.length === 1) {
+      centerX -= (event.touches[0].clientX - touchDelta.x) / zoom;
+      centerY -= (event.touches[0].clientY - touchDelta.y) / zoom;
+      touchDelta.x = event.touches[0].clientX;
+      touchDelta.y = event.touches[0].clientY;
+    }
+  }
+
   function mousemove(event: MouseEvent) {
     centerX -= event.movementX / zoom;
     centerY -= event.movementY / zoom;
@@ -52,6 +70,8 @@
   bind:clientHeight={viewportHeight}
   {onwheel}
   {onmousedown}
+  {ontouchstart}
+  {ontouchmove}
   role="presentation"
   aria-roledescription="Graph visualizer"
 >
@@ -71,11 +91,3 @@
     {/each}
   </svg>
 </div>
-
-<style>
-  g {
-    transform-origin: center;
-    transform-box: fill-box;
-    transition: transform 1s;
-  }
-</style>
