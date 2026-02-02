@@ -1,7 +1,7 @@
 <script lang="ts">
   import { scale } from "svelte/transition";
   import { BaseGraph, type IEdge, type IVertex } from "./graph.svelte";
-    import Vertex from "./Vertex.svelte";
+  import Vertex from "./Vertex.svelte";
 
   let {
     graph,
@@ -40,16 +40,26 @@
     }
   }
 
-  let touchDelta = {x: 0, y: 0}
+  let touchDelta = { x: 0, y: 0 };
 
   function ontouchstart(event: TouchEvent) {
+    event.preventDefault();
     if (event.touches.length === 1) {
       touchDelta.x = event.touches[0].clientX;
       touchDelta.y = event.touches[0].clientY;
     }
+    window.addEventListener("touchmove", ontouchmove, { passive: false });
+    window.addEventListener(
+      "touchend",
+      () => {
+        window.removeEventListener("touchmove", ontouchmove);
+      },
+      { once: true },
+    );
   }
 
   function ontouchmove(event: TouchEvent) {
+    event.preventDefault();
     if (event.touches.length === 1) {
       centerX -= (event.touches[0].clientX - touchDelta.x) / zoom;
       centerY -= (event.touches[0].clientY - touchDelta.y) / zoom;
@@ -71,14 +81,9 @@
   {onwheel}
   {onmousedown}
   {ontouchstart}
-  {ontouchmove}
   role="presentation"
   aria-roledescription="Graph visualizer"
 >
-  <div class="absolute top-0 left-0">
-    {centerX}
-    {centerY}
-  </div>
   <svg {viewBox} class="h-full w-full">
     {#each graph.getEdges() as edge (edge)}
       <path
@@ -87,7 +92,7 @@
       />
     {/each}
     {#each graph.getVertices() as vertex (vertex)}
-      <Vertex {vertex}/>
+      <Vertex {vertex} />
     {/each}
   </svg>
 </div>

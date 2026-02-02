@@ -1,6 +1,5 @@
 <script lang="ts">
     import BinaryHeapViewer from "./lib/binary_heap/BinaryHeapViewer.svelte";
-    import Sample from "./lib/binary_tree/Sample.test.svelte";
 </script>
 
 <div
