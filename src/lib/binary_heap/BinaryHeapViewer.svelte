@@ -4,8 +4,6 @@
         BinaryTreeVertex,
     } from "../binary_tree/binary_tree.svelte";
     import BinaryTreeViewer from "../binary_tree/BinaryTreeViewer.svelte";
-    import { arrangeCircle } from "../graph/arrange";
-    import GraphViewer from "../graph/GraphViewer.svelte";
 
     class HeapCell {
         value: number;
@@ -54,10 +52,9 @@
             let parent = heapData[parentIndex - 1];
 
             if (current.value < parent.value) {
-                console.log("Will flip ", current, " and ", parent);
-
                 let carry = heapData[currentIndex - 1].value;
-                heapData[currentIndex - 1].value = heapData[parentIndex - 1].value;
+                heapData[currentIndex - 1].value =
+                    heapData[parentIndex - 1].value;
                 heapData[parentIndex - 1].value = carry;
 
                 let vCarry = current.vertex.vertex;
@@ -69,25 +66,32 @@
                 break;
             }
         }
-
-        console.log(tree.root);
-        console.log(heapData);
     }
 </script>
 
-<div class="dark:bg-slate-950 bg-slate-200 rounded-lg overflow-hidden p-2">
-    <input
-        type="number"
-        bind:value={addValueInput}
-        onkeyup={(e) => e.key === "Enter" && addValue()}
-    />
-    <div class="flex gap-2">
-        {#each heapData as cell (cell.vertex)}
-            {@const _ = console.log("rendering ", cell)}
-            <div class="bg-slate-300">
-                {cell.value}
+<div class="dark:bg-slate-950 bg-slate-200 rounded-lg p-2 flex">
+    <div
+        class="grow flex-nowrap overflow-x-scroll overflow-y-hidden flex gap-0.5"
+    >
+        {#each heapData as cell, i (cell.vertex)}
+            <div>
+                <div class="text-center text-sm">
+                    {i + 1}
+                </div>
+                <div
+                    class="bg-blue-500 rounded-full min-w-8 min-h-8 flex justify-center items-center"
+                >
+                    {cell.value}
+                </div>
             </div>
         {/each}
+    </div>
+    <div>
+        <input
+            type="number"
+            bind:value={addValueInput}
+            onkeyup={(e) => e.key === "Enter" && addValue()}
+        />
     </div>
 </div>
 
