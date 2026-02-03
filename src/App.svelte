@@ -44,7 +44,10 @@
     <div
         class="dark:bg-slate-950 bg-slate-200 rounded-lg overflow-hidden p-2 flex"
     >
-        <div class="grow">AG1 Trainer</div>
+        <div class="grow">
+            AG1 Trainer
+            {#if currentScreen}{' >> '}{currentScreen.title}{/if}
+        </div>
         <div>
             <button onclick={fullscreen}>Full screen</button>
         </div>
