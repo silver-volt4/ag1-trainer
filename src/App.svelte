@@ -1,5 +1,25 @@
 <script lang="ts">
+    import type { Component } from "svelte";
     import BinaryHeapViewer from "./lib/binary_heap/BinaryHeapViewer.svelte";
+    import BinarySearchTreeViewer from "./lib/bst/BinarySearchTreeViewer.svelte";
+
+    let currentScreen: Screen | null = $state(null);
+
+    let screens: {[key: string]: Screen} = {
+        binaryHeap: {
+            title: "Binary heap",
+            component: BinaryHeapViewer,
+        },
+        binarySearchTree: {
+            title: "Binary Search Tree",
+            component: BinarySearchTreeViewer,
+        },
+    };
+
+    interface Screen {
+        title: string;
+        component: Component;
+    }
 
     let fullscreenElement: Element | undefined = $state();
 
@@ -9,6 +29,10 @@
         } else {
             document.body.requestFullscreen();
         }
+    }
+
+    function setTool(tool: string) {
+        currentScreen = screens[tool];
     }
 </script>
 
@@ -25,5 +49,12 @@
             <button onclick={fullscreen}>Full screen</button>
         </div>
     </div>
-    <BinaryHeapViewer />
+    {#if currentScreen}
+        {@const Component = currentScreen.component}
+        <Component/>
+    {:else}
+        Select tool:
+        <button onclick={() => setTool("binaryHeap")}>Binary heap</button>
+        <button onclick={() => setTool("binarySearchTree")}>Binary search tree</button>
+    {/if}
 </div>
