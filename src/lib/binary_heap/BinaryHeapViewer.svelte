@@ -5,18 +5,8 @@
     } from "../binary_tree/binary_tree.svelte";
     import BinaryTreeViewer from "../binary_tree/BinaryTreeViewer.svelte";
 
-    class HeapCell {
-        value: number;
-        vertex: BinaryTreeVertex;
-
-        constructor(value: number, vertex: BinaryTreeVertex) {
-            this.value = value;
-            this.vertex = vertex;
-        }
-    }
-
     let tree = new BinaryTree();
-    let heapData: HeapCell[] = $state([]);
+    let heapData: BinaryTreeVertex[] = $state([]);
 
     let addValueInput = $state(0);
 
@@ -25,25 +15,24 @@
         addValueInput = 0;
 
         let vertex: BinaryTreeVertex;
-        let data = { content: value.toString() };
         if (heapData.length === 0) {
-            vertex = tree.createVertex(data);
+            vertex = tree.createVertex(value);
             tree.root = vertex;
         } else {
             let parentIndex = Math.floor((heapData.length + 1) / 2) - 1;
             let parent = heapData[parentIndex];
             if (heapData.length % 2 == 0) {
-                vertex = parent.vertex.createRight(data);
+                vertex = parent.createRight(value);
             } else {
-                vertex = parent.vertex.createLeft(data);
+                vertex = parent.createLeft(value);
             }
         }
 
-        BHInsert(new HeapCell(value, vertex));
+        BHInsert(vertex);
         addValueInput = 0;
     }
 
-    function BHInsert(cell: HeapCell) {
+    function BHInsert(cell: BinaryTreeVertex) {
         let currentIndex = heapData.push(cell);
         while (currentIndex > 1) {
             let parentIndex = Math.floor(currentIndex / 2);
@@ -51,15 +40,10 @@
             let current = heapData[currentIndex - 1];
             let parent = heapData[parentIndex - 1];
 
-            if (current.value < parent.value) {
-                let carry = heapData[currentIndex - 1].value;
-                heapData[currentIndex - 1].value =
-                    heapData[parentIndex - 1].value;
-                heapData[parentIndex - 1].value = carry;
-
-                let vCarry = current.vertex.vertex;
-                current.vertex.vertex = parent.vertex.vertex;
-                parent.vertex.vertex = vCarry;
+            if (current.vertex.value < parent.vertex.value) {
+                let carry = current.vertex;
+                current.vertex = parent.vertex;
+                parent.vertex = carry;
 
                 currentIndex = parentIndex;
             } else {
@@ -81,7 +65,7 @@
                 <div
                     class="bg-blue-500 rounded-full min-w-8 min-h-8 flex justify-center items-center"
                 >
-                    {cell.value}
+                    {cell.vertex.value}
                 </div>
             </div>
         {/each}

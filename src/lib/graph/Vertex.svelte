@@ -27,13 +27,13 @@
 <g style="transform: translate({positionX.current}px, {positionY.current}px);">
     <g transition:scale>
         <circle class="fill-blue-500" r={10} />
-        {#if vertex.data?.content}
+        {#if vertex.content}
             <text
                 font-size={10}
                 text-anchor="middle"
                 dominant-baseline="central"
             >
-                {vertex.data?.content}
+                {vertex.content}
             </text>
         {/if}
     </g>

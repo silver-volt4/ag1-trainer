@@ -126,9 +126,9 @@ export class BinaryTree extends BaseGraph<BTWrappedVertex, IEdge> {
         });
     }
 
-    public createVertex(data: VertexData = {}): BinaryTreeVertex {
+    public createVertex(value: number): BinaryTreeVertex {
         let vertex = new BinaryTreeVertex(this);
-        Object.assign(vertex.vertex.data!, data);
+        vertex.vertex.value = value;
         return vertex;
     }
 }
@@ -136,7 +136,8 @@ export class BinaryTree extends BaseGraph<BTWrappedVertex, IEdge> {
 export class BTWrappedVertex implements IVertex {
     x: number = $state(0);
     y: number = $state(0);
-    data: VertexData = $state({});
+    value: number = $state(0);
+    content = $derived(this.value.toString());
 }
 
 export class BinaryTreeVertex {
@@ -151,8 +152,8 @@ export class BinaryTreeVertex {
         this.tree = binaryTree;
     }
 
-    public createLeft(data: VertexData = {}) {
-        let vertex = this.tree.createVertex(data)
+    public createLeft(value: number) {
+        let vertex = this.tree.createVertex(value)
         vertex.parent = this;
         if (this.left) {
             this.left.parent = null;
@@ -161,8 +162,8 @@ export class BinaryTreeVertex {
         return vertex;
     }
 
-    public createRight(data: VertexData = {}) {
-        let vertex = this.tree.createVertex(data)
+    public createRight(value: number) {
+        let vertex = this.tree.createVertex(value)
         vertex.parent = this;
         if (this.right) {
             this.right.parent = null;

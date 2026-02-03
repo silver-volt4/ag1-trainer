@@ -1,7 +1,8 @@
 export interface IVertex {
   x: number;
   y: number;
-  data?: VertexData
+  cssClass?: string;
+  content?: string;
 }
 
 export interface IEdge {
@@ -18,8 +19,7 @@ export class Graph extends BaseGraph<Vertex, IEdge> {
   public vertices: Vertex[] = $state([]);
 
   public createVertex(data: VertexData = {}) {
-    let vertex = new Vertex(this);
-    Object.assign(vertex.data, data);
+    let vertex = new Vertex(this, data);
     this.vertices.push(vertex);
     return vertex;
   }
@@ -45,13 +45,16 @@ export class Graph extends BaseGraph<Vertex, IEdge> {
 
 export class Vertex implements IVertex {
   protected graph: Graph;
-  public successors: Set<Vertex>;
-  public x: number = $state(0);
-  public y: number = $state(0);
+  successors: Set<Vertex>;
 
-  data: VertexData = $state({});
+  x: number = $state(0);
+  y: number = $state(0);
+  private data: VertexData = $state({});
+  cssClass = $derived(this.data?.class ?? undefined)
+  content = $derived(this.data?.content ?? undefined)
 
-  constructor(graph: Graph) {
+  constructor(graph: Graph, data: VertexData) {
+    Object.assign(this.data, data);
     this.graph = graph;
     this.successors = new Set();
   }
