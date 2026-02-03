@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { scale } from "svelte/transition";
+    import { scale } from "svelte/transition";
   import { BaseGraph, type IEdge, type IVertex } from "./graph.svelte";
   import Vertex from "./Vertex.svelte";
 
@@ -40,13 +40,17 @@
     }
   }
 
-  let touchDelta = { x: 0, y: 0 };
+  let touchDelta: { x: number; y: number } | null = null;
+  let dist: number | null = null;
 
   function ontouchstart(event: TouchEvent) {
     event.preventDefault();
     if (event.touches.length === 1) {
-      touchDelta.x = event.touches[0].clientX;
-      touchDelta.y = event.touches[0].clientY;
+      touchDelta = {
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      };
+      dist = null;
     }
     window.addEventListener("touchmove", ontouchmove, { passive: false });
     window.addEventListener(
@@ -61,10 +65,24 @@
   function ontouchmove(event: TouchEvent) {
     event.preventDefault();
     if (event.touches.length === 1) {
-      centerX -= (event.touches[0].clientX - touchDelta.x) / zoom;
-      centerY -= (event.touches[0].clientY - touchDelta.y) / zoom;
-      touchDelta.x = event.touches[0].clientX;
-      touchDelta.y = event.touches[0].clientY;
+      if (touchDelta) {
+        centerX -= (event.touches[0].clientX - touchDelta.x) / zoom;
+        centerY -= (event.touches[0].clientY - touchDelta.y) / zoom;
+      }
+      touchDelta = {
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      };
+    } else if (event.touches.length === 2) {
+      
+      let newDist = Math.sqrt(
+        event.touches[0].clientX * event.touches[1].clientX +
+        event.touches[0].clientY * event.touches[1].clientY,
+      );
+      if (dist) {
+        zoom = Math.max(1.0, zoom + (dist - newDist) / 10);
+      }
+      dist = newDist;
     }
   }
 
