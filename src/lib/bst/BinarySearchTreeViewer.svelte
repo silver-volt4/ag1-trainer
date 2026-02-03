@@ -9,7 +9,7 @@
 
     let addValueInput = $state(0);
 
-    function BVSInsert(value: number) {
+    function BSTInsert(value: number) {
         let current = tree.root;
         let insert = () => {}; // this simulates "pointer" access
 
@@ -47,7 +47,7 @@
                 if (e.key === "Enter") {
                     let value = addValueInput;
                     addValueInput = 0;
-                    BVSInsert(value);
+                    BSTInsert(value);
                 }
             }}
         />
