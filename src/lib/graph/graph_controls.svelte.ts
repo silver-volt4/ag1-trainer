@@ -24,17 +24,28 @@ export class ViewportController {
         this.y -= dy / this.zoom;
     }
 
-    public zoomAtViewportPosition(x: number, y: number, dz: number) {
+    public convertViewportPositionToSvgPosition(x: number, y: number) {
         let ratX = x / this.viewportWidth;
         let ratY = y / this.viewportHeight;
 
-        let xWithinSvgBefore = this.viewBoxMinX + ratX * this.viewBoxWidth;
-        let yWithinSvgBefore = this.viewBoxMinY + ratY * this.viewBoxHeight;
+        return {
+            x: this.viewBoxMinX + ratX * this.viewBoxWidth,
+            y: this.viewBoxMinY + ratY * this.viewBoxHeight,
+        }
+    }
 
-        this.zoom = clamp(1, (this.zoom += dz), 20);
+    public zoomAtViewportPosition(x: number, y: number, dz: number) {
+        let {
+            x: xWithinSvgBefore,
+            y: yWithinSvgBefore,
+        } = this.convertViewportPositionToSvgPosition(x, y);
 
-        let xWithinSvgAfter = this.viewBoxMinX + ratX * this.viewBoxWidth;
-        let yWithinSvgAfter = this.viewBoxMinY + ratY * this.viewBoxHeight;
+        this.zoom = clamp(1, this.zoom + dz, 20);
+
+        let {
+            x: xWithinSvgAfter,
+            y: yWithinSvgAfter,
+        } = this.convertViewportPositionToSvgPosition(x, y);
 
         this.x += xWithinSvgBefore - xWithinSvgAfter;
         this.y += yWithinSvgBefore - yWithinSvgAfter;
@@ -64,6 +75,7 @@ export function mouseViewportController(viewportController: ViewportController) 
         };
 
         function onmousemove(event: MouseEvent) {
+            event.preventDefault();
             viewportController.pan(event.movementX, event.movementY);
         }
 
@@ -95,18 +107,21 @@ export function touchViewportController(viewportController: ViewportController) 
         node.addEventListener("touchend", ontouchend, { passive: false });
 
         function ontouchstart(event: TouchEvent) {
-            for (let touch of event.touches) {
+            event.preventDefault();
+            for (let touch of event.changedTouches) {
                 oldTouches[touch.identifier] = touch;
             }
         }
 
         function ontouchend(event: TouchEvent) {
-            for (let touch of event.touches) {
+            event.preventDefault();
+            for (let touch of event.changedTouches) {
                 delete oldTouches[touch.identifier];
             }
         }
 
         function ontouchmove(event: TouchEvent) {
+            event.preventDefault();
             if (event.touches.length === 1) {
                 let current = event.touches[0];
                 let previous = oldTouches[current.identifier] ?? null;
@@ -119,21 +134,28 @@ export function touchViewportController(viewportController: ViewportController) 
                 let pt0 = oldTouches[t0.identifier] ?? null;
                 let pt1 = oldTouches[t1.identifier] ?? null;
                 if (pt0 && pt1) {
-                    let distBefore = Math.sqrt(t0.clientX * t1.clientX + t0.clientY * t1.clientY);
-                    let distAfter = Math.sqrt(pt0.clientX * pt1.clientX + pt0.clientY * pt1.clientY);
+                    let pt0vw = viewportController.convertViewportPositionToSvgPosition(pt0.clientX, pt0.clientY);
+                    let pt1vw = viewportController.convertViewportPositionToSvgPosition(pt1.clientX, pt1.clientY);
+                    let t0vw = viewportController.convertViewportPositionToSvgPosition(t0.clientX, t0.clientY);
+                    let t1vw = viewportController.convertViewportPositionToSvgPosition(t1.clientX, t1.clientY);
+                    let distBefore = Math.sqrt(Math.pow(pt0vw.x - pt1vw.x, 2) + Math.pow(pt0vw.y - pt1vw.y, 2));
+                    let distAfter = Math.sqrt(Math.pow(t0vw.x - t1vw.x, 2) + Math.pow(t0vw.y - t1vw.y, 2));
 
                     let dz = 0;
                     if (distBefore != 0) {
-                        dz = distAfter / distBefore - 1;
+                        dz = distBefore / distAfter - 1;
+                        dz *= -1;
                     }
 
-                    dz *= 100;
-
+                    viewportController.pan(
+                        (t0.clientX + t1.clientX) / 2 - (pt0.clientX + pt1.clientX) / 2,
+                        (t0.clientY + t1.clientY) / 2 - (pt0.clientY + pt1.clientY) / 2
+                    );
                     viewportController.zoomAtViewportPosition((t0.clientX + t1.clientX) / 2, (t0.clientY + t1.clientY) / 2, dz);
                 }
             }
 
-            for (let touch of event.touches) {
+            for (let touch of event.changedTouches) {
                 oldTouches[touch.identifier] = touch;
             }
         }
