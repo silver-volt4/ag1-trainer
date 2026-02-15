@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { scale } from "svelte/transition";
   import { BaseGraph, type IEdge, type IVertex } from "./graph.svelte";
   import Vertex from "./Vertex.svelte";
 
@@ -9,6 +8,10 @@
     graph: BaseGraph<IVertex, IEdge>;
   } = $props();
 
+  function clamp(min: number, value: number, max: number) {
+    return Math.min(max, Math.max(value, min));
+  }
+
   let viewportWidth = $state(0);
   let viewportHeight = $state(0);
 
@@ -16,27 +19,50 @@
   let centerY = $state(0);
   let zoom = $state(3.0);
 
+  // SVG ViewBox calculation
+  let viewBoxMinX = $derived(centerX - viewportWidth / (2 * zoom));
+  let viewBoxMinY = $derived(centerY - viewportHeight / (2 * zoom));
+  let viewBoxWidth = $derived(viewportWidth / zoom);
+  let viewBoxHeight = $derived(viewportHeight / zoom);
   let viewBox = $derived(
-    `${centerX - viewportWidth / (2 * zoom)} ${centerY - viewportHeight / (2 * zoom)} ${viewportWidth / zoom} ${viewportHeight / zoom}`,
+    `${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`,
   );
 
   function onwheel(event: WheelEvent) {
-    zoom = Math.max(1.0, (zoom -= event.deltaY / 200));
+    let factor = event.deltaY / -200;
+
+    let xWithinSvgBefore =
+      viewBoxMinX + (event.offsetX / viewportWidth) * viewBoxWidth;
+    let yWithinSvgBefore =
+      viewBoxMinY + (event.offsetY / viewportHeight) * viewBoxHeight;
+
+    zoom = clamp(1, (zoom += factor), 20);
+
+    let xWithinSvgAfter =
+      viewBoxMinX + (event.offsetX / viewportWidth) * viewBoxWidth;
+    let yWithinSvgAfter =
+      viewBoxMinY + (event.offsetY / viewportHeight) * viewBoxHeight;
+
+    centerX += xWithinSvgBefore - xWithinSvgAfter;
+    centerY += yWithinSvgBefore - yWithinSvgAfter;
   }
 
   function onmousedown(event: MouseEvent) {
     const AUXILIARY_BUTTON_ID = 1; // this refers to the middle mouse button
     if (event.button === AUXILIARY_BUTTON_ID) {
+      console.info("Start dragging motion");
+
       window.addEventListener("mousemove", mousemove);
-      window.addEventListener(
-        "mouseup",
-        (e: MouseEvent) => {
-          if (e.button === AUXILIARY_BUTTON_ID) {
-            window.removeEventListener("mousemove", mousemove);
-          }
-        },
-        { once: true },
-      );
+
+      const detach = (e: MouseEvent) => {
+        if (e.button === AUXILIARY_BUTTON_ID) {
+          console.info("End dragging motion");
+          window.removeEventListener("mousemove", mousemove);
+          window.removeEventListener("mouseup", detach);
+        }
+      };
+
+      window.addEventListener("mouseup", detach);
     }
   }
 
@@ -74,10 +100,9 @@
         y: event.touches[0].clientY,
       };
     } else if (event.touches.length === 2) {
-      
       let newDist = Math.sqrt(
         event.touches[0].clientX * event.touches[1].clientX +
-        event.touches[0].clientY * event.touches[1].clientY,
+          event.touches[0].clientY * event.touches[1].clientY,
       );
       if (dist) {
         zoom = Math.max(1.0, zoom + (dist - newDist) / 10);
@@ -97,6 +122,7 @@
   bind:clientWidth={viewportWidth}
   bind:clientHeight={viewportHeight}
   {onwheel}
+  oncontextmenu={(e: Event) => e.preventDefault()}
   {onmousedown}
   {ontouchstart}
   role="presentation"
