@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { TrainerToolDescription } from "./lib/tool_description";
+    import petersen from "./assets/petersen.svg";
 
     let currentScreen: TrainerToolDescription | null = $state(null);
 
@@ -29,6 +30,10 @@
 
 <svelte:document bind:fullscreenElement />
 
+<svelte:head>
+    <link rel="icon" type="image/svg+xml" href={petersen} />
+</svelte:head>
+
 <div
     class="h-full w-full flex flex-col gap-2 p-2 box-border dark:text-white text-black dark:bg-slate-900 bg-slate-300"
 >
@@ -47,9 +52,19 @@
         {@const Component = currentScreen.component}
         <Component />
     {:else}
-        Select tool:
-        {#each Object.values(tools) as tool}
-            <button onclick={() => setTool(tool)}>{tool.title}</button>
-        {/each}
+        <div class="flex items-center justify-center gap-5 my-5">
+            <img src={petersen} alt="Petersen's graph" class="h-30" />
+            <span class="fw-bold text-4xl"> AG1 Trainer </span>
+        </div>
+
+        <div class="text-xl">Select tool:</div>
+
+        <div class="flex flex-wrap gap-2">
+            {#each Object.values(tools) as tool}
+                <button class="w-50 h-20 text-2xl" onclick={() => setTool(tool)}
+                    >{tool.title}</button
+                >
+            {/each}
+        </div>
     {/if}
 </div>
