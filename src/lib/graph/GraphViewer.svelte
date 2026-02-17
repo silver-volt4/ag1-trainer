@@ -22,15 +22,17 @@
   role="presentation"
   aria-roledescription="Graph visualizer"
 >
-  <svg viewBox={viewportController.viewBox} class="h-full w-full">
-    {#each graph.getEdges() as edge (edge)}
-      <path
-        d="M{edge.from.x} {edge.from.y} L{edge.to.x} {edge.to.y}"
-        class="dark:stroke-white stroke-black"
-      />
-    {/each}
-    {#each graph.getVertices() as vertex (vertex)}
-      <Vertex {vertex} />
-    {/each}
-  </svg>
+  <div class="h-full w-full">
+    <svg viewBox={viewportController.viewBox} class="h-full w-full cursor-move">
+      {#each graph.getEdges() as edge (edge)}
+        <path
+          d="M{edge.from.x} {edge.from.y} L{edge.to.x} {edge.to.y}"
+          class="dark:stroke-white stroke-black"
+        />
+      {/each}
+      {#each graph.getVertices() as vertex (vertex)}
+        <Vertex {vertex} />
+      {/each}
+    </svg>
+  </div>
 </div>

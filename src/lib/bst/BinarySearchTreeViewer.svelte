@@ -7,7 +7,13 @@
 
     let tree = new BinaryTree();
 
-    let addValueInput = $state(0);
+    let addValueInput: number | null = $state(null);
+
+    function addValue() {
+        let value = addValueInput;
+        addValueInput = 0;
+        if (value !== null) BSTInsert(value);
+    }
 
     function BSTInsert(value: number) {
         let current = tree.root;
@@ -38,22 +44,19 @@
     }
 </script>
 
+<div class="dark:bg-slate-950 bg-slate-200 rounded-lg h-full overflow-hidden">
+    <BinaryTreeViewer binaryTree={tree} />
+</div>
+
 <div class="dark:bg-slate-950 bg-slate-200 rounded-lg p-2 flex">
     <div>
         <input
             type="number"
             bind:value={addValueInput}
-            onkeyup={(e) => {
-                if (e.key === "Enter") {
-                    let value = addValueInput;
-                    addValueInput = 0;
-                    BSTInsert(value);
-                }
+            onkeyup={e => {
+                if (e.key === "Enter") addValue();
             }}
         />
     </div>
-</div>
-
-<div class="dark:bg-slate-950 bg-slate-200 rounded-lg h-full overflow-hidden">
-    <BinaryTreeViewer binaryTree={tree} />
+    <button onclick={() => addValue()}>Insert</button>
 </div>

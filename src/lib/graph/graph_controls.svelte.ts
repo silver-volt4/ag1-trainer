@@ -54,21 +54,21 @@ export class ViewportController {
 
 export function mouseViewportController(viewportController: ViewportController) {
     return function (node: HTMLElement) {
-        const MIDDLE_MOUSE_BUTTON_ID = 1;
+        const LEFT_MOUSE_BUTTON_ID = 0;
 
         node.addEventListener("mousedown", onmousedown)
         node.addEventListener("mouseup", onmouseup)
         node.addEventListener("wheel", onwheel)
 
         function onmousedown(event: MouseEvent) {
-            if (event.button === MIDDLE_MOUSE_BUTTON_ID) {
+            if (event.button === LEFT_MOUSE_BUTTON_ID) {
                 console.info("Start dragging motion");
                 window.addEventListener("mousemove", onmousemove);
             }
         }
 
         function onmouseup(e: MouseEvent) {
-            if (e.button === MIDDLE_MOUSE_BUTTON_ID) {
+            if (e.button === LEFT_MOUSE_BUTTON_ID) {
                 console.info("End dragging motion");
                 window.removeEventListener("mousemove", onmousemove);
             }

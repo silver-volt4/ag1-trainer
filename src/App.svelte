@@ -35,7 +35,7 @@
 </svelte:head>
 
 <div
-    class="h-full w-full flex flex-col gap-2 p-2 box-border dark:text-white text-black dark:bg-slate-900 bg-slate-300"
+    class="h-full w-full overflow-hidden flex flex-col gap-2 p-2 box-border dark:text-white text-black dark:bg-slate-900 bg-slate-300"
 >
     <div
         class="dark:bg-slate-950 bg-slate-200 rounded-lg overflow-hidden p-2 flex"
