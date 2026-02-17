@@ -4,6 +4,7 @@
         BinaryTreeVertex,
     } from "../binary_tree/binary_tree.svelte";
     import BinaryTreeViewer from "../binary_tree/BinaryTreeViewer.svelte";
+    import type { IVertex } from "../graph/graph.svelte";
 
     let tree = new BinaryTree();
     let heapData: BinaryTreeVertex[] = $state([]);
@@ -83,14 +84,18 @@
     </div>
 </div>
 
-<div class="h-full overflow-hidden">
+<div class="h-full overflow-hidden flex flex-col">
     <div class="dark:bg-slate-950 bg-slate-200 inline-block p-2 rounded-t-lg">
         Graph view
     </div>
     <div
-        class="dark:bg-slate-950 bg-slate-200 rounded-lg rounded-tl-none h-full overflow-hidden"
+        class="dark:bg-slate-950 bg-slate-200 rounded-lg rounded-tl-none grow overflow-hidden"
     >
-        <BinaryTreeViewer binaryTree={tree} />
+        <BinaryTreeViewer binaryTree={tree}>
+            {#snippet contextMenu(vertex: IVertex)}
+                <button>Here's a funny work in progress context menu.</button>
+            {/snippet}
+        </BinaryTreeViewer>
     </div>
 </div>
 
