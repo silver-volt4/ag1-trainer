@@ -80,6 +80,7 @@ export function mouseViewportController(viewportController: ViewportController) 
         }
 
         function onwheel(event: WheelEvent) {
+            event.preventDefault();
             let factor = -Math.sign(event.deltaY);
             viewportController.zoomAtViewportPosition(
                 event.offsetX,
