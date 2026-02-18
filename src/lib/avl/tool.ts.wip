@@ -1,0 +1,9 @@
+import type { TrainerToolDescription } from "../tool_description";
+import AVLViewer from "./AVLViewer.svelte";
+
+const tool: TrainerToolDescription = {
+    title: "AVL tree",
+    component: AVLViewer
+}
+
+export default tool;

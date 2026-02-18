@@ -58,7 +58,7 @@
                 {" >> "}{currentScreen.title}
             {/if}
         </div>
-        <div class="bg-blue-400 rounded-full flex items-center gap-1 p-1 me-2">
+        <!-- <div class="bg-blue-400 rounded-full flex items-center gap-1 p-1 me-2">
             {#each Object.entries( { light: "Light", dark: "Dark", system: "System" }, ) as [id, name]}
                 <button
                     class="rounded-full h-8 w-8 border-none"
@@ -67,7 +67,7 @@
                     }}>{name}</button
                 >
             {/each}
-        </div>
+        </div> -->
         <button onclick={fullscreen}>Full screen</button>
     </div>
     {#if currentScreen}

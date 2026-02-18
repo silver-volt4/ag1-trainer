@@ -27,8 +27,9 @@
   let contextMenuPosX = $state(0);
   let contextMenuPosY = $state(0);
   let contextMenuElement: HTMLElement | undefined = $state(undefined);
+  let contextMenuVertex: IVertex | null = $state.raw(null);
 
-  let contextMenuSnippet: Snippet | null = $state(null);
+  let contextMenuSnippet: Snippet<any[]> | null = $state(null);
 </script>
 
 <svelte:window
@@ -74,6 +75,7 @@
           contextMenuPosX = e.clientX;
           contextMenuPosY = e.clientY;
           contextMenuSnippet = contextMenu(vertex);
+          contextMenuVertex = vertex;
         }}
       />
     {/each}
@@ -88,6 +90,6 @@
     style:left={`${contextMenuPosX}px`}
     style:top={`${contextMenuPosY}px`}
   >
-    {@render contextMenuSnippet()}
+    {@render contextMenuSnippet(contextMenuVertex)}
   </div>
 {/if}

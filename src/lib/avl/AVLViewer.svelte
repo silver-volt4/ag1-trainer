@@ -1,13 +1,9 @@
 <script lang="ts">
-    import {
-        BinaryTreeVertex,
-        BTWrappedVertex,
-    } from "../binary_tree/binary_tree.svelte";
     import BinaryTreeViewer from "../binary_tree/BinaryTreeViewer.svelte";
     import type { IVertex } from "../graph/graph.svelte";
-    import { BSTree, BSTreeVertex } from "./binary_search_tree.svelte";
+    import { AVLTree } from "./avl_tree.svelte";
 
-    let tree = new BSTree();
+    let tree = new AVLTree();
 
     let addValueInput: number | null = $state(null);
 
@@ -22,19 +18,20 @@
     <BinaryTreeViewer
         binaryTree={tree}
         contextMenu={(vertex: IVertex | null) => {
-            return (vertex ? contextMenuVertex : null) as any;
+            return null;
+            //return (vertex ? contextMenuVertex : contextMenuEmpty) as any;
         }}
     ></BinaryTreeViewer>
 </div>
 
-{#snippet contextMenuVertex(vertex: BTWrappedVertex)}
-    <button
-        class="btn"
-        onclick={() => (vertex.binaryTreeVertex as BSTreeVertex).rotate()}
-    >
-        Rotate...
-    </button>
+{#snippet contextMenuVertex(vertex: IVertex)}
+    <button class="btn"> Rotate... </button>
 {/snippet}
+
+{#snippet contextMenuEmpty()}
+    You right clicked in an empty space.
+{/snippet}
+
 <div class="foreground rounded-lg p-2 flex">
     <div>
         <input
@@ -46,6 +43,4 @@
         />
     </div>
     <button onclick={() => addValue()}>Insert</button>
-
-    Tip: Right click a vertex to perform BST rotations on it
 </div>

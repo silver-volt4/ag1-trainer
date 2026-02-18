@@ -12,7 +12,7 @@ export interface IEdge {
   to: IVertex;
 }
 
-export type VertexContextMenuFactory = (v: null | IVertex) => null | Snippet;
+export type VertexContextMenuFactory = (v: null | IVertex) => null | Snippet<any[]>;
 
 export abstract class BaseGraph<VertexType extends IVertex, EdgeType extends IEdge> {
   public abstract getVertices(): Iterable<VertexType>;

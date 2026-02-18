@@ -138,10 +138,16 @@ export class BTWrappedVertex implements IVertex {
     y: number = $state(0);
     value: number = $state(0);
     content = $derived(this.value.toString());
+    binaryTreeVertex: BinaryTreeVertex;
+
+    constructor(binaryTreeVertex: BinaryTreeVertex) {
+        this.binaryTreeVertex = binaryTreeVertex;
+    }
+
 }
 
 export class BinaryTreeVertex {
-    vertex: BTWrappedVertex = $state(new BTWrappedVertex());
+    vertex: BTWrappedVertex = $state(new BTWrappedVertex(this));
 
     protected tree: BinaryTree;
     parent: BinaryTreeVertex | null = $state(null);
@@ -150,6 +156,12 @@ export class BinaryTreeVertex {
 
     constructor(binaryTree: BinaryTree) {
         this.tree = binaryTree;
+
+        $effect.root(() => {
+            $effect(() => {
+                this.vertex.binaryTreeVertex = this;
+            })
+        })
     }
 
     public createLeft(value: number) {
