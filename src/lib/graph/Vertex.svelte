@@ -33,6 +33,7 @@
             tabindex="-1"
             oncontextmenu={(e) => {
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 oncontextmenu(e);
             }}
         />

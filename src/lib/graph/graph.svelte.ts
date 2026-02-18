@@ -1,3 +1,5 @@
+import type { Snippet } from "svelte";
+
 export interface IVertex {
   x: number;
   y: number;
@@ -9,6 +11,8 @@ export interface IEdge {
   from: IVertex;
   to: IVertex;
 }
+
+export type VertexContextMenuFactory = (v: null | IVertex) => null | Snippet;
 
 export abstract class BaseGraph<VertexType extends IVertex, EdgeType extends IEdge> {
   public abstract getVertices(): Iterable<VertexType>;

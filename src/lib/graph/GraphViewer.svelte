@@ -1,6 +1,11 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import { BaseGraph, type IEdge, type IVertex } from "./graph.svelte";
+  import {
+    BaseGraph,
+    type IEdge,
+    type IVertex,
+    type VertexContextMenuFactory,
+  } from "./graph.svelte";
   import {
     mouseViewportController,
     touchViewportController,
@@ -11,10 +16,10 @@
 
   let {
     graph,
-    contextMenu,
+    contextMenu = () => null,
   }: {
     graph: BaseGraph<IVertex, IEdge>;
-    contextMenu?: Snippet<[IVertex]>;
+    contextMenu?: VertexContextMenuFactory;
   } = $props();
 
   let viewportController = new ViewportController();
@@ -22,15 +27,16 @@
   let contextMenuPosX = $state(0);
   let contextMenuPosY = $state(0);
   let contextMenuElement: HTMLElement | undefined = $state(undefined);
-  let contextMenuFocus: IVertex | null = $state(null);
+
+  let contextMenuSnippet: Snippet | null = $state(null);
 </script>
 
 <svelte:window
   onmousedown={(e: MouseEvent) => {
     if (e.button !== 0) return;
-    if (!contextMenuFocus || !contextMenuElement) return;
+    if (!contextMenuSnippet || !contextMenuElement) return;
     if (!contextMenuElement.contains(e.target as Node)) {
-      contextMenuFocus = null;
+      contextMenuSnippet = null;
     }
   }}
 />
@@ -43,10 +49,17 @@
   {@attach touchViewportController(viewportController)}
   role="presentation"
   aria-roledescription="Graph visualizer"
+  oncontextmenu={(e: MouseEvent) => {
+    e.preventDefault();
+    contextMenuPosX = e.clientX;
+    contextMenuPosY = e.clientY;
+    contextMenuSnippet = contextMenu(null);
+  }}
 >
   <svg
     viewBox={viewportController.viewBox}
     class="cursor-move absolute top-0 left-0 bottom-0 right-0"
+    role="presentation"
   >
     {#each graph.getEdges() as edge (edge)}
       <path
@@ -60,21 +73,21 @@
         oncontextmenu={(e: MouseEvent) => {
           contextMenuPosX = e.clientX;
           contextMenuPosY = e.clientY;
-          contextMenuFocus = vertex;
+          contextMenuSnippet = contextMenu(vertex);
         }}
       />
     {/each}
   </svg>
 </div>
 
-{#if contextMenu && contextMenuFocus}
+{#if contextMenuSnippet}
   <div
     bind:this={contextMenuElement}
     transition:slide
-    class="fixed dark:bg-slate-800 bg-slate-300 shadow p-2 rounded-lg"
+    class="fixed dark:bg-slate-800 bg-slate-300 shadow rounded-lg overflow-none w-50"
     style:left={`${contextMenuPosX}px`}
     style:top={`${contextMenuPosY}px`}
   >
-    {@render contextMenu(contextMenuFocus)}
+    {@render contextMenuSnippet()}
   </div>
 {/if}

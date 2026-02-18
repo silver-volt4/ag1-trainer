@@ -1,9 +1,7 @@
 <script lang="ts">
-    import {
-        BinaryTree,
-        BinaryTreeVertex,
-    } from "../binary_tree/binary_tree.svelte";
+    import { BinaryTree } from "../binary_tree/binary_tree.svelte";
     import BinaryTreeViewer from "../binary_tree/BinaryTreeViewer.svelte";
+    import type { IVertex } from "../graph/graph.svelte";
 
     let tree = new BinaryTree();
 
@@ -44,16 +42,32 @@
     }
 </script>
 
-<div class="dark:bg-slate-950 bg-slate-200 rounded-lg h-full overflow-hidden">
-    <BinaryTreeViewer binaryTree={tree} />
+<div class="foreground rounded-lg h-full overflow-hidden">
+    <BinaryTreeViewer
+        binaryTree={tree}
+        contextMenu={(vertex: IVertex | null) => {
+            return null;
+            //return (vertex ? contextMenuVertex : contextMenuEmpty) as any;
+        }}
+    ></BinaryTreeViewer>
 </div>
 
-<div class="dark:bg-slate-950 bg-slate-200 rounded-lg p-2 flex">
+{#snippet contextMenuVertex(vertex: IVertex)}
+    <button class="btn">
+        Rotate...
+    </button>
+{/snippet}
+
+{#snippet contextMenuEmpty()}
+    You right clicked in an empty space.
+{/snippet}
+
+<div class="foreground rounded-lg p-2 flex">
     <div>
         <input
             type="number"
             bind:value={addValueInput}
-            onkeyup={e => {
+            onkeyup={(e) => {
                 if (e.key === "Enter") addValue();
             }}
         />

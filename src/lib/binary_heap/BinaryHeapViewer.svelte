@@ -56,12 +56,8 @@
 </script>
 
 <div>
-    <div class="dark:bg-slate-950 bg-slate-200 inline-block p-2 rounded-t-lg">
-        Array view
-    </div>
-    <div
-        class="dark:bg-slate-950 bg-slate-200 rounded-lg rounded-tl-none p-2 grow"
-    >
+    <div class="foreground inline-block p-2 rounded-t-lg">Array view</div>
+    <div class="foreground rounded-lg rounded-tl-none p-2 grow">
         <div
             class="grow flex-nowrap overflow-x-scroll overflow-y-hidden flex gap-0.5"
         >
@@ -85,21 +81,17 @@
 </div>
 
 <div class="h-full overflow-hidden flex flex-col">
-    <div class="dark:bg-slate-950 bg-slate-200 inline-block p-2 rounded-t-lg">
-        Graph view
+    <div>
+        <div class="foreground inline-block p-2 rounded-t-lg shrink">
+            Graph view
+        </div>
     </div>
-    <div
-        class="dark:bg-slate-950 bg-slate-200 rounded-lg rounded-tl-none grow overflow-hidden"
-    >
-        <BinaryTreeViewer binaryTree={tree}>
-            {#snippet contextMenu(vertex: IVertex)}
-                <button>Here's a funny work in progress context menu.</button>
-            {/snippet}
-        </BinaryTreeViewer>
+    <div class="foreground rounded-lg rounded-tl-none grow overflow-hidden">
+        <BinaryTreeViewer binaryTree={tree} />
     </div>
 </div>
 
-<div class="dark:bg-slate-950 bg-slate-200 rounded-lg p-2">
+<div class="foreground rounded-lg p-2">
     <input
         type="number"
         bind:value={addValueInput}
